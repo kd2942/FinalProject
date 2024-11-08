@@ -1,0 +1,26 @@
+---
+title: "Final Project Proposal"
+output: html_document
+date: "2024-11-08"
+---
+
+Group Members: Kaylin De Silva (kd2942), Cristina Varela (cev2129), Alishah Khan (ak5098)
+
+Project Title: Green Spaces in the Concrete Jungle
+
+Project Motivation: 
+New York City is infamously known as the concrete jungle with approximately 1 million structors distributed over an era of 778.2 km^2. However, unbeknownst to many, NYC offers more green space than any other major U.S. city. In fact, 99% of New Yorkers live within a 10-minute walk from a green space. Despite this, these areas are often overlooked due to the city's dense, industrial layout. Our team aims to enhance access to and awareness of these green spaces by documenting the location of every garden in NYC and highlighting their features, such as plant and animal life, available amenities, and environmentally friendly practices. We are creating a comprehensive resource to empower NYC residents with this valuable information.
+
+Final Products: 
+Our intended final product is a website that shares information about community gardens in New York City. The website’s home page will have a map of garden locations and a description of our project goals. We will have three main tabs that will highlight features of the gardens: their flora and fauna, eco-friendly practices, and various amenities. The flora and fauna tab will contain information about the animals and plants that are in the gardens and how these differ by borough and garden size. The eco-friendly tab will cover eco-friendly practices that these gardens actively engage in. The practices are: composting (recycling food waste or other organic material and making it into a fertilizer to reduce landfill waste and improve the quality of soil), rain harvesting (harvesting rainwater and using it to water plants), aquaponics (an aquaculture technique in which fish waste supplies nutrients for soilless plants, which in turn purify the water for the fish), and solar panels (collect solar energy to power electricity in order to reduce greenhouse gas emissions and promote air quality). The garden amenities sections will describe fun features available to park-goers. These include open lawn or communal areas, murals, ponds, farmer’s markets, and food. 
+
+
+Data Sources: 
+Our project will be utilizing data from NYC Open Data, a site that provides publicly available datasets that are produced and used by the New York City government. This data is managed by the NYC Office of Technology and Innovation. We will focus on three data sets in a collection on the site titled “GreenThumb Gardens”, which holds information about the NYC Parks GreenThumb community garden program. The first data set (https://data.cityofnewyork.us/dataset/GreenThumb-Garden-Info/p78i-pat6/about_data) contains information about the location of the gardens, their hours of operation, and more. We will use it to create a map of the city’s gardens and run analyses about location. The second data set (https://data.cityofnewyork.us/Environment/GreenThumb-Site-Visits/xqbk-beh5/about_data) contains information about the gardens’ layouts, amenities, and more. We will also use data on income (Median Income in the Past 12 Months (in 2022 Inflation-Adjusted Dollars), from https://data.census.gov/table/ACSST5Y2022.S1903?q=Income%20by%20Zip%20code%20tabulation%20area).
+ We will use this data set to create visualizations and run analyses that compare the offerings of the various gardens. The three data sets in tandem will allow for analyses of amenities by location. The final data set (https://data.cityofnewyork.us/dataset/GreenThumb-Block-Lot/fsjc-9fyh/about_data) provides information about the size of the gardens, which can be used to understand how amenities and flora/fauna differ based on garden size. 
+ 
+ Planned Analyses/Visualizations/Challenges:
+ For the flora and fauna tab, we plan to do a multi-series histogram for the number of gardens with each respective animal (chickens, turtles, fish) across boroughs. We also plan to have a map to show gardens with plants only, animals only, and animals + plants. We will run a logistic regression of garden size on animal presence. For the eco-friendly practices tab, we plan to have a map for gardens that engage in eco-friendly practices, histograms for each practice (separated by borough), and an analysis on the association between presence of eco-friendly practices and borough (Chi Square Test and Multinomial Logistic Regression). For the garden amenities tab, we plan to have a histogram of the number of gardens with each of the features: open lawn/communal area, murals, pond, farmer’s market, food. We will run a logistic regression analysis of income on garden amenities by zip code and an analysis of congressional district and garden amenities. We predict that our main coding challenge will be with creating the maps as we have limited experience in using R for that kind of visualization.
+
+Planned Timeline:
+We plan to complete our analyses and visualizations by Friday, November 22nd. We will then build a draft of our website by November 27th. We will complete the screencast and add it onto the website by December 4th, and finalize the website by December 5th. We plan to submit on December 6th. 
