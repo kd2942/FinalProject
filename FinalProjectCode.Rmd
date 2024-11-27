@@ -4,3 +4,35 @@ author: "Kaylin De Silva, Alishah Khan, Cristina Varela"
 date: 12-06-2024
 output: github_document
 ---
+
+#loading libraries
+```{r}
+library(tidyverse)
+library(rvest)
+library(httr)
+```
+
+#loading datasets
+```{r}
+garden_info = 
+  GET("http://data.cityofnewyork.us/resource/p78i-pat6.csv") |> 
+  content("parsed") |>
+  janitor::clean_names() |>
+  drop_na()
+
+site_visits = 
+  GET("http://data.cityofnewyork.us/resource/xqbk-beh5.csv") |>
+  content("parsed") |>
+  janitor::clean_names()
+```
+
+#merging the data sets for flora and fauna analysis
+```{r}
+#cleaning site visit data set so it only includes variables involved in flora and fauna 
+site_visits_flora_fauna = site_visits |>
+  select(parksid, inspectionid, treesingarden, fruittrees, streettrees, chickens, pond, fishinpond, turtles) |>
+  drop_na()
+
+flora_fauna_df= 
+  right_join(garden_info, site_visits_flora_fauna, by = "parksid") 
+```
