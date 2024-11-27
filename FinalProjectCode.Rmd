@@ -1,0 +1,6 @@
+---
+title: "Final Project Code"
+author: "Kaylin De Silva, Alishah Khan, Cristina Varela"
+date: 12-06-2024
+output: github_document
+---
