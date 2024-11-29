@@ -88,8 +88,39 @@ site_visits =
 #cleaning site visit data set so it only includes variables involved in flora and fauna 
 site_visits_flora_fauna = site_visits |>
   select(parksid, inspectionid, treesingarden, fruittrees, streettrees, chickens, pond, fishinpond, turtles) |>
-  drop_na(treesingarden, fruittrees, streettrees, chickens, pond, turtles)
+ mutate_at(c('treesingarden', 'fruittrees', 'streettrees', 'chickens', 'pond', 'fishinpond', 'turtles'), as.numeric)
 
 flora_fauna_df= 
   inner_join(garden_info, site_visits_flora_fauna, by = "parksid") 
 ```
+
+``` r
+flora_fauna_df = flora_fauna_df |>
+  group_by(borough) |>
+  mutate(
+  "Trees in Garden" = sum(treesingarden),
+  "Fruit Trees" = sum(fruittrees),
+  "Street Trees" = sum(streettrees),
+  "Chickens" = sum(chickens),
+  "Pond" = sum(pond),
+  "Fish in Pond" = sum(fishinpond),
+  "Turtles" = sum(turtles)
+  )
+```
+
+``` r
+flora_fauna_tidy = 
+   pivot_longer(
+    flora_fauna_df, 
+    "Trees in Garden":"Turtles",
+    names_to = "item", 
+    values_to = "total")
+
+ggplot(flora_fauna_tidy, aes(x = item, y= total, fill=borough)) + 
+    geom_bar(position="dodge", stat="identity")
+```
+
+    ## Warning: Removed 236 rows containing missing values or values outside the scale range
+    ## (`geom_bar()`).
+
+![](FinalProjectCode_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
