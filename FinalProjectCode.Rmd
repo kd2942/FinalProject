@@ -18,7 +18,18 @@ garden_info =
   GET("http://data.cityofnewyork.us/resource/p78i-pat6.csv") |> 
   content("parsed") |>
   janitor::clean_names() |>
-  drop_na()
+  drop_na() |>
+   mutate(
+    borough = 
+      recode(
+        borough,
+        "B" = "Brooklyn",
+        "M" = "Manhattan",
+        "X" = "Bronx",
+        "R" = "Staten Island",
+        "Q" = "Queens"
+      )
+   )
 
 site_visits = 
   GET("http://data.cityofnewyork.us/resource/xqbk-beh5.csv") |>
@@ -31,8 +42,13 @@ site_visits =
 #cleaning site visit data set so it only includes variables involved in flora and fauna 
 site_visits_flora_fauna = site_visits |>
   select(parksid, inspectionid, treesingarden, fruittrees, streettrees, chickens, pond, fishinpond, turtles) |>
-  drop_na()
+  drop_na(treesingarden, fruittrees, streettrees, chickens, pond, turtles)
 
 flora_fauna_df= 
-  right_join(garden_info, site_visits_flora_fauna, by = "parksid") 
+  inner_join(garden_info, site_visits_flora_fauna, by = "parksid") 
 ```
+
+```{r}
+
+```
+
