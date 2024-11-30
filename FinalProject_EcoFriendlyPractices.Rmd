@@ -4,10 +4,7 @@ output: html_document
 date: "2024-11-30"
 ---
 
-#installing packages
-```{r}
-install.packages(c("leaflet", "flexdashboard", "crosstalk"))
-```
+
 
 #loading libraries
 ```{r setup, include=FALSE}
@@ -18,6 +15,8 @@ library(ggplot2)
 library(leaflet)
 library(crosstalk)
 library(dplyr)
+library(rvest)
+library(httr)
 ```
 
 
@@ -129,6 +128,82 @@ leaflet(map_data) |>
   )
 ```
 
+#Chi-Square Test of independence on association between borough and presence of eco-friendly practices 
+```{r}
+#Creating new binary variable for eco-friendly practices 
+eco_friendly_df <- eco_friendly_df |>
+  mutate(
+    eco_friendly = ifelse(
+      RainHarvesting > 0 | Composting > 0 | Aquaponics > 0 | Solarpanels > 0, 
+      1, 
+      0
+    )
+  ) 
+
+eco_friendly_df |>
+  mutate(
+    eco_friendly = factor(eco_friendly),
+    borough = factor(borough)
+  ) |>
+  select(eco_friendly, borough) |>
+  table() |>
+  chisq.test()
+```
+
+#Logistic Regression Analyses modeling probability of a garden engaging ine ach eco-friendly practice based on borough
+```{r}
+#logistic regression model for presence of eco-friendly practices by borough
+logistic_df =
+  eco_friendly_df |>
+  select('rainharvesting', 'composting', 'aquaponics', 'solarpanels', 'borough') |>
+  drop_na() |>
+  mutate(
+    borough = fct_relevel(borough, "Manhattan")
+  )
+
+#Rainharvesting 
+logistic_rainharvesting = 
+  logistic_df |>
+  glm(rainharvesting~ borough, data = _, family = binomial())  
+
+logistic_rainharvesting |> 
+  broom::tidy() |> 
+  mutate(OR = exp(estimate)) |>
+  select(term, log_OR = estimate, OR, p.value) |> 
+  knitr::kable(digits = 3)
+
+#Composting 
+logistic_composting = 
+  logistic_df |>
+  glm(composting~ borough, data = _, family = binomial())  
+
+logistic_composting |> 
+  broom::tidy() |> 
+  mutate(OR = exp(estimate)) |>
+  select(term, log_OR = estimate, OR, p.value) |> 
+  knitr::kable(digits = 3)
+
+#Aquaponics
+logistic_aquaponics = 
+  logistic_df |>
+  glm(aquaponics~ borough, data = _, family = binomial())  
+
+logistic_aquaponics |> 
+  broom::tidy() |> 
+  mutate(OR = exp(estimate)) |>
+  select(term, log_OR = estimate, OR, p.value) |> 
+  knitr::kable(digits = 3)
 
 
+#Solarpanels 
+logistic_solarpanels = 
+  logistic_df |>
+  glm(solarpanels~ borough, data = _, family = binomial())  
+
+logistic_solarpanels |> 
+  broom::tidy() |> 
+  mutate(OR = exp(estimate)) |>
+  select(term, log_OR = estimate, OR, p.value) |> 
+  knitr::kable(digits = 3) 
+``` 
 
