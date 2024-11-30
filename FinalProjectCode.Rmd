@@ -37,11 +37,12 @@ site_visits =
   janitor::clean_names()
 ```
 
+**Flora/Fauna Tab**
 #merging the data sets for flora and fauna analysis
 ```{r}
 #cleaning site visit data set so it only includes variables involved in flora and fauna 
 site_visits_flora_fauna = site_visits |>
-  select(parksid, inspectionid, treesingarden, fruittrees, streettrees, chickens, pond, fishinpond, turtles) |>
+  select(parksid, inspectionid, treesingarden, fruittrees, streettrees, chickens, pond, fishinpond, turtles, totalsidewalkarea) |>
  mutate_at(c('treesingarden', 'fruittrees', 'streettrees', 'chickens', 'pond', 'fishinpond', 'turtles'), as.numeric)
 
 flora_fauna_df= 
@@ -62,7 +63,7 @@ flora_fauna_df = flora_fauna_df |>
   )
 ```
 
-```{r}
+```{r multi-series bar chart reflecting distribution of flora and fauna features by borough}
 flora_fauna_tidy = 
    pivot_longer(
     flora_fauna_df, 
@@ -70,7 +71,57 @@ flora_fauna_tidy =
     names_to = "item", 
     values_to = "total")
 
-ggplot(flora_fauna_tidy, aes(x = item, y= total, fill=borough)) + 
-    geom_bar(position="dodge", stat="identity")
+ggplot(flora_fauna_tidy, aes(x = borough, y= total, fill=item)) + 
+    geom_bar(position="dodge", stat="identity") +
+  labs(title = "Distribution of Flaura + Fauna Features in NYC Gardens",
+    x = "Borough",
+    y = "Number of Gardens with Each Feature by Borough",
+    color = "Flora/Fauna Feature",
+    caption = "Data from NYC Open Data"
+  ) +
+    viridis::scale_fill_viridis(
+    name = "Flora/Fauna Feature", 
+    discrete = TRUE
+  )
+```
+
+```{r logistic regression for presence of types of trees by borough, controlling for sidewalk area}
+fit_logistic_df =
+  flora_fauna_df |>
+  select('treesingarden', 'fruittrees', 'streettrees', 'borough', 'totalsidewalkarea') |>
+  drop_na() |>
+  mutate(
+    borough = fct_relevel(borough, "Manhattan")
+  )
+
+fit_logistic_treesingarden = 
+  fit_logistic_df |>
+  glm(treesingarden~ borough + totalsidewalkarea, data = _, family = binomial()) 
+
+fit_logistic_fruittrees = 
+  fit_logistic_df |>
+  glm(fruittrees ~ borough + totalsidewalkarea, data = _, family = binomial())
+
+fit_logistic_streettrees = 
+  fit_logistic_df |>
+  glm(streettrees ~ borough + totalsidewalkarea, data = _, family = binomial())
+
+fit_logistic_treesingarden |> 
+  broom::tidy() |> 
+  mutate(OR = exp(estimate)) |>
+  select(term, log_OR = estimate, OR, p.value) |> 
+  knitr::kable(digits = 3)
+
+fit_logistic_fruittrees |> 
+  broom::tidy() |> 
+  mutate(OR = exp(estimate)) |>
+  select(term, log_OR = estimate, OR, p.value) |> 
+  knitr::kable(digits = 3)
+
+fit_logistic_streettrees |> 
+  broom::tidy() |> 
+  mutate(OR = exp(estimate)) |>
+  select(term, log_OR = estimate, OR, p.value) |> 
+  knitr::kable(digits = 3)
 ```
 
