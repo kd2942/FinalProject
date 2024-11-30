@@ -237,3 +237,32 @@ eco_friendly_df = eco_friendly_df |>
   "Solarpanels" = sum(solarpanels),
   )
 ```
+
+\#Data Visualization
+
+``` r
+#histogram for distribution of eco-friendly practices across boroughs 
+#reshaping data to plot 
+eco_friendly_tidy <- eco_friendly_df |>
+  select(borough, RainHarvesting, Composting, Aquaponics, Solarpanels) |>
+  pivot_longer(cols = c(RainHarvesting, Composting, Aquaponics, Solarpanels),
+               names_to = "Practice",
+               values_to = "Count")
+
+#plotting the multipart histogram 
+ggplot(eco_friendly_tidy, aes(x = borough, y = Count, fill = Practice)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(
+    title = "Distribution of Eco-Friendly Practices Across Boroughs",
+    x = "Borough",
+    y = "Number of Gardens that Engage in Eco-Friendly Practices",
+    color = "Eco-Friendly Practices",
+    caption = "Data from NYC Open Data"
+  ) +
+    viridis::scale_fill_viridis(
+    name = "Eco-Friendly Practices", 
+    discrete = TRUE
+  )
+```
+
+![](FinalProjectCode_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
