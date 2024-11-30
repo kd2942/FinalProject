@@ -215,3 +215,15 @@ fit_logistic_streettrees |>
 | boroughQueens        |   0.252 | 1.286 |   0.688 |
 | boroughStaten Island | -15.047 | 0.000 |   0.986 |
 | totalsidewalkarea    |   0.000 | 1.000 |   0.016 |
+
+**Eco-Friendly Practices Tab ** \#merging and cleaning data for analysis
+of eco-friendly practices
+
+``` r
+site_visits_eco_friendly = site_visits |>
+  select(parksid, inspectionid, rainharvesting, composting, aquaponics, solarpanels) |>
+ mutate_at(c('rainharvesting', 'composting', 'aquaponics', 'solarpanels'), as.numeric) 
+
+eco_friendly_df= 
+  inner_join(garden_info, site_visits_eco_friendly, by = "parksid") 
+```
