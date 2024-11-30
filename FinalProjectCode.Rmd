@@ -135,4 +135,18 @@ site_visits_eco_friendly = site_visits |>
 eco_friendly_df= 
   inner_join(garden_info, site_visits_eco_friendly, by = "parksid") 
 
+#Grouping Eco-friendly practices by borough for analysis 
+eco_friendly_df = eco_friendly_df |>
+  group_by(borough) |>
+  mutate(
+  "RainHarvesting" = sum(rainharvesting),
+  "Composting" = sum(composting),
+  "Aquaponics" = sum(aquaponics),
+  "Solarpanels" = sum(solarpanels),
+  )
+```
+
+
+```{r}
+
 ```
