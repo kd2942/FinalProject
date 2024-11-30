@@ -4,3 +4,131 @@ output: html_document
 date: "2024-11-30"
 ---
 
+#installing packages
+```{r}
+install.packages(c("leaflet", "flexdashboard", "crosstalk"))
+```
+
+#loading libraries
+```{r setup, include=FALSE}
+library(readr)
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(leaflet)
+library(crosstalk)
+library(dplyr)
+```
+
+
+#loading datasets
+```{r}
+garden_info = 
+  GET("http://data.cityofnewyork.us/resource/p78i-pat6.csv") |> 
+  content("parsed") |>
+  janitor::clean_names() |>
+  drop_na() |>
+   mutate(
+    borough = 
+      recode(
+        borough,
+        "B" = "Brooklyn",
+        "M" = "Manhattan",
+        "X" = "Bronx",
+        "R" = "Staten Island",
+        "Q" = "Queens"
+      )
+   )
+
+site_visits = 
+  GET("http://data.cityofnewyork.us/resource/xqbk-beh5.csv") |>
+  content("parsed") |>
+  janitor::clean_names()
+```
+**Eco-Friendly Practices Tab **
+#merging and cleaning data for analysis of eco-friendly practices
+```{r}
+site_visits_eco_friendly = site_visits |>
+  select(parksid, inspectionid, rainharvesting, composting, aquaponics, solarpanels) |>
+ mutate_at(c('rainharvesting', 'composting', 'aquaponics', 'solarpanels'), as.numeric) 
+
+eco_friendly_df= 
+  inner_join(garden_info, site_visits_eco_friendly, by = "parksid") 
+
+#Grouping Eco-friendly practices by borough for analysis 
+eco_friendly_df = eco_friendly_df |>
+  group_by(borough) |>
+  mutate(
+  "RainHarvesting" = sum(rainharvesting),
+  "Composting" = sum(composting),
+  "Aquaponics" = sum(aquaponics),
+  "Solarpanels" = sum(solarpanels),
+  )
+```
+
+
+#Data Visualization
+```{r}
+#Histogram: Overall Distribution of Eco-Friendly Practices Across Boroughs
+#reshaping data to plot 
+eco_friendly_tidy <- eco_friendly_df |>
+  select(borough, RainHarvesting, Composting, Aquaponics, Solarpanels) |>
+  pivot_longer(cols = c(RainHarvesting, Composting, Aquaponics, Solarpanels),
+               names_to = "Practice",
+               values_to = "Count")
+
+#plotting the multipart histogram 
+ggplot(eco_friendly_tidy, aes(x = borough, y = Count, fill = Practice)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(
+    title = "Distribution of Eco-Friendly Practices Across Boroughs",
+    x = "Borough",
+    y = "Number of Gardens that Engage in Eco-Friendly Practices",
+    color = "Eco-Friendly Practices",
+    caption = "Data from NYC Open Data"
+  ) +
+    viridis::scale_fill_viridis(
+    name = "Eco-Friendly Practices", 
+    discrete = TRUE
+  )
+``` 
+
+```{r}
+#Interactive Map: Gardens of NYC  
+map_data <- eco_friendly_df |>
+  select(
+    garden_name = gardenname, 
+    latitude = lat, 
+    longitude = lon, 
+    Location = address,
+    borough, RainHarvesting, Composting, Aquaponics, Solarpanels
+  ) |>
+  mutate(
+    practices = paste0(
+      ifelse(RainHarvesting > 0, "RainHarvesting, ", ""),
+      ifelse(Composting > 0, "Composting, ", ""),
+      ifelse(Aquaponics > 0, "Aquaponics, ", ""),
+      ifelse(Solarpanels > 0, "Solarpanels", "")
+    )
+  )
+
+leaflet(map_data) |>
+  addTiles() |>
+  setView(
+    lng = -74.006,  # Longitude of NYC center
+    lat = 40.7128,  # Latitude of NYC center
+    zoom = 11      # Adjust zoom level (10–13 works well for NYC
+  ) |>
+  addCircleMarkers(
+    ~longitude, ~latitude,
+    label = ~paste(garden_name, Location, practices),
+    popup = ~paste0("<b>", garden_name, "</b><br>Borough: ", borough, "<br>Practices: ", practices),
+    color = "green",
+    radius = 6,
+    fillOpacity = 0.8
+  )
+```
+
+
+
+
