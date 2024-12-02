@@ -1,5 +1,5 @@
 ---
-title: "Final Project Code"
+title: "Final Project Code for Flora + Fauna tab"
 author: "Kaylin De Silva, Alishah Khan, Cristina Varela"
 date: 12-06-2024
 output: html_document
