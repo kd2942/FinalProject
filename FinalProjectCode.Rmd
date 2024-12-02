@@ -2,7 +2,7 @@
 title: "Final Project Code"
 author: "Kaylin De Silva, Alishah Khan, Cristina Varela"
 date: 12-06-2024
-output: github_document
+output: html_document
 ---
 
 #loading libraries
@@ -10,6 +10,8 @@ output: github_document
 library(tidyverse)
 library(rvest)
 library(httr)
+library(leaflet)
+library(crosstalk)
 ```
 
 #loading datasets
@@ -123,5 +125,44 @@ fit_logistic_streettrees |>
   mutate(OR = exp(estimate)) |>
   select(term, log_OR = estimate, OR, p.value) |> 
   knitr::kable(digits = 3)
+```
+
+```{r}
+#Interactive Map: Flora and Fauna in Gardens of NYC 
+map_data <- flora_fauna_df |>
+  select(
+    garden_name = gardenname, 
+    latitude = lat, 
+    longitude = lon, 
+    Location = address,
+    borough, chickens, fruittrees, streettrees, treesingarden, pond, fishinpond, turtles
+  ) |>
+  mutate(
+    floraandfauna = paste0(
+      ifelse(chickens > 0, "Chickens, ", ""),
+      ifelse(fruittrees > 0, "Fruit Trees, ", ""),
+      ifelse(streettrees > 0, "Street Trees, ", ""),
+      ifelse(treesingarden > 0, "Trees in Garden, ", ""),
+      ifelse(pond > 0, "Pond, ", ""),
+      ifelse(fishinpond > 0, "Fish in Pond, ", ""),
+       ifelse(turtles > 0, "Turtles, ", "")
+    )
+  )
+
+leaflet(map_data) |>
+  addTiles() |>
+  setView(
+    lng = -74.006,  # Longitude of NYC center
+    lat = 40.7128,  # Latitude of NYC center
+    zoom = 11      # Adjust zoom level (10–13 works well for NYC
+  ) |>
+  addCircleMarkers(
+    ~longitude, ~latitude,
+    label = ~paste(garden_name, Location, floraandfauna),
+    popup = ~paste0("<b>", garden_name, "</b><br>Borough: ", borough, "<br>FloraandFauna: ", floraandfauna),
+    color = "green",
+    radius = 6,
+    fillOpacity = 0.8
+  )
 ```
 
