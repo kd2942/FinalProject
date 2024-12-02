@@ -1,0 +1,209 @@
+---
+title: "Eco-Friendly Practices"
+output: html_document
+date: "2024-11-30"
+---
+
+
+
+#loading libraries
+```{r setup, include=FALSE}
+library(readr)
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(leaflet)
+library(crosstalk)
+library(dplyr)
+library(rvest)
+library(httr)
+```
+
+
+#loading datasets
+```{r}
+garden_info = 
+  GET("http://data.cityofnewyork.us/resource/p78i-pat6.csv") |> 
+  content("parsed") |>
+  janitor::clean_names() |>
+  drop_na() |>
+   mutate(
+    borough = 
+      recode(
+        borough,
+        "B" = "Brooklyn",
+        "M" = "Manhattan",
+        "X" = "Bronx",
+        "R" = "Staten Island",
+        "Q" = "Queens"
+      )
+   )
+
+site_visits = 
+  GET("http://data.cityofnewyork.us/resource/xqbk-beh5.csv") |>
+  content("parsed") |>
+  janitor::clean_names()
+```
+**Eco-Friendly Practices Tab **
+#merging and cleaning data for analysis of eco-friendly practices
+```{r}
+site_visits_eco_friendly = site_visits |>
+  select(parksid, inspectionid, rainharvesting, composting, aquaponics, solarpanels) |>
+ mutate_at(c('rainharvesting', 'composting', 'aquaponics', 'solarpanels'), as.numeric) 
+
+eco_friendly_df= 
+  inner_join(garden_info, site_visits_eco_friendly, by = "parksid") 
+
+#Grouping Eco-friendly practices by borough for analysis 
+eco_friendly_df = eco_friendly_df |>
+  group_by(borough) |>
+  mutate(
+  "RainHarvesting" = sum(rainharvesting),
+  "Composting" = sum(composting),
+  "Aquaponics" = sum(aquaponics),
+  "Solarpanels" = sum(solarpanels),
+  )
+```
+
+
+#Data Visualization
+```{r}
+#Histogram: Overall Distribution of Eco-Friendly Practices Across Boroughs
+#reshaping data to plot 
+eco_friendly_tidy <- eco_friendly_df |>
+  select(borough, RainHarvesting, Composting, Aquaponics, Solarpanels) |>
+  pivot_longer(cols = c(RainHarvesting, Composting, Aquaponics, Solarpanels),
+               names_to = "Practice",
+               values_to = "Count")
+
+#plotting the multipart histogram 
+ggplot(eco_friendly_tidy, aes(x = borough, y = Count, fill = Practice)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(
+    title = "Distribution of Eco-Friendly Practices Across Boroughs",
+    x = "Borough",
+    y = "Number of Gardens that Engage in Eco-Friendly Practices",
+    color = "Eco-Friendly Practices",
+    caption = "Data from NYC Open Data"
+  ) +
+    viridis::scale_fill_viridis(
+    name = "Eco-Friendly Practices", 
+    discrete = TRUE
+  )
+``` 
+
+```{r}
+#Interactive Map: Gardens of NYC  
+map_data <- eco_friendly_df |>
+  select(
+    garden_name = gardenname, 
+    latitude = lat, 
+    longitude = lon, 
+    Location = address,
+    borough, RainHarvesting, Composting, Aquaponics, Solarpanels
+  ) |>
+  mutate(
+    practices = paste0(
+      ifelse(RainHarvesting > 0, "RainHarvesting, ", ""),
+      ifelse(Composting > 0, "Composting, ", ""),
+      ifelse(Aquaponics > 0, "Aquaponics, ", ""),
+      ifelse(Solarpanels > 0, "Solarpanels", "")
+    )
+  )
+
+leaflet(map_data) |>
+  addTiles() |>
+  setView(
+    lng = -74.006,  # Longitude of NYC center
+    lat = 40.7128,  # Latitude of NYC center
+    zoom = 11      # Adjust zoom level (10–13 works well for NYC
+  ) |>
+  addCircleMarkers(
+    ~longitude, ~latitude,
+    label = ~paste(garden_name, Location, practices),
+    popup = ~paste0("<b>", garden_name, "</b><br>Borough: ", borough, "<br>Practices: ", practices),
+    color = "green",
+    radius = 6,
+    fillOpacity = 0.8
+  )
+```
+
+#Chi-Square Test of independence on association between borough and presence of eco-friendly practices 
+```{r}
+#Creating new binary variable for eco-friendly practices 
+eco_friendly_df <- eco_friendly_df |>
+  mutate(
+    eco_friendly = ifelse(
+      RainHarvesting > 0 | Composting > 0 | Aquaponics > 0 | Solarpanels > 0, 
+      1, 
+      0
+    )
+  ) 
+
+eco_friendly_df |>
+  mutate(
+    eco_friendly = factor(eco_friendly),
+    borough = factor(borough)
+  ) |>
+  select(eco_friendly, borough) |>
+  table() |>
+  chisq.test()
+```
+
+#Logistic Regression Analyses modeling probability of a garden engaging ine ach eco-friendly practice based on borough
+```{r}
+#logistic regression model for presence of eco-friendly practices by borough
+logistic_df =
+  eco_friendly_df |>
+  select('rainharvesting', 'composting', 'aquaponics', 'solarpanels', 'borough') |>
+  drop_na() |>
+  mutate(
+    borough = fct_relevel(borough, "Manhattan")
+  )
+
+#Rainharvesting 
+logistic_rainharvesting = 
+  logistic_df |>
+  glm(rainharvesting~ borough, data = _, family = binomial())  
+
+logistic_rainharvesting |> 
+  broom::tidy() |> 
+  mutate(OR = exp(estimate)) |>
+  select(term, log_OR = estimate, OR, p.value) |> 
+  knitr::kable(digits = 3)
+
+#Composting 
+logistic_composting = 
+  logistic_df |>
+  glm(composting~ borough, data = _, family = binomial())  
+
+logistic_composting |> 
+  broom::tidy() |> 
+  mutate(OR = exp(estimate)) |>
+  select(term, log_OR = estimate, OR, p.value) |> 
+  knitr::kable(digits = 3)
+
+#Aquaponics
+logistic_aquaponics = 
+  logistic_df |>
+  glm(aquaponics~ borough, data = _, family = binomial())  
+
+logistic_aquaponics |> 
+  broom::tidy() |> 
+  mutate(OR = exp(estimate)) |>
+  select(term, log_OR = estimate, OR, p.value) |> 
+  knitr::kable(digits = 3)
+
+
+#Solarpanels 
+logistic_solarpanels = 
+  logistic_df |>
+  glm(solarpanels~ borough, data = _, family = binomial())  
+
+logistic_solarpanels |> 
+  broom::tidy() |> 
+  mutate(OR = exp(estimate)) |>
+  select(term, log_OR = estimate, OR, p.value) |> 
+  knitr::kable(digits = 3) 
+``` 
+

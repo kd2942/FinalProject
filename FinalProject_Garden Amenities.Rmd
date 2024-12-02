@@ -1,0 +1,190 @@
+---
+title: "Garden Amenities"
+output: html_document
+date: "2024-11-27"
+---
+```{r setup, include=FALSE}
+
+library(readr)
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(stringr)
+options(scipen = 999)  # Turn off scientific notation globally
+
+```
+
+
+
+
+```{r}
+
+gardeninfo = read_csv("P8105 Data Science I/finalproject/GreenThumb_Garden_Info_20241127.csv") %>% janitor::clean_names()
+gardenamenities = read_csv("P8105 Data Science I/finalproject/GreenThumb_Site_Visits_20241127.csv") %>% janitor::clean_names()
+
+info_tidy = gardeninfo %>% select(borough, gardenname, parksid, zipcode, congressionaldist) %>% 
+  mutate(borough = recode(borough,
+                          "B" = "Brooklyn",
+                          "X" = "Bronx",
+                          "M" = "Manhattan",
+                          "Q" = "Queens",
+                          "R" = "Staten Island"))
+amenities_tidy = gardenamenities %>% select(parks_id, open_lawn_or_communal_area, murals, farmers_market, pond, food, inspection_id) %>% rename(parksid = parks_id)
+
+#merging data
+garden_merged = full_join(amenities_tidy, info_tidy, by= "parksid") 
+
+#removing duplicates
+info_tidy %>% select(parksid) %>% duplicated()
+amenities_tidy %>% select(parksid) %>% unique()
+garden_merged[duplicated(garden_merged) | duplicated(garden_merged, fromLast = TRUE), ]
+garden_merged = garden_merged[!duplicated(garden_merged), ]
+
+
+
+#creating amenity count table
+amenity_count = garden_merged %>%
+  pivot_longer(cols = c(open_lawn_or_communal_area, murals, farmers_market, pond, food), names_to = "Amenity", values_to = "True_False") %>% 
+  filter(True_False == TRUE) %>% 
+  group_by(Amenity) %>% 
+  count(name = "total_gardens")
+
+
+#amenity count by borough
+amenity_count_borough = garden_merged %>%
+  pivot_longer(cols = c(open_lawn_or_communal_area, murals, farmers_market, pond, food), names_to = "Amenity", values_to = "True_False") %>% 
+  select(borough, Amenity, True_False) %>% 
+  filter(True_False == TRUE) %>% 
+  group_by(borough, Amenity) %>%
+  summarise(num_amenities = n(), .groups = "drop") %>% 
+  group_by(borough) %>% 
+  mutate(total_amenities = sum(num_amenities)) %>% 
+    ungroup()
+  
+table1 = amenity_count_borough %>% select(borough, total_amenities) %>% unique() %>% 
+  knitr::kable(col.names = c("Borough", "Total Amenities"),
+               label = "Total Number of Garden Amenities by Borough")
+  
+
+
+```
+
+
+DATA VIZ 1
+ histogram of the number of gardens with each of the features: open lawn/communal area, murals, pond, farmer’s market, food
+```{r}
+plot1 =  amenity_count %>% 
+  mutate(Amenity = recode(Amenity,
+                          "farmers_market" = "Farmer's Market",
+                          "food" = "Food",
+                          "murals" = "Murals",
+                          "open_lawn_or_communal_area" = "Open Lawn/Communal Area",
+                          "pond" = "Pond")) %>% 
+  ggplot(aes(x = Amenity, y = total_gardens, fill = Amenity)) +
+  geom_col() +
+  labs(title = "Number of Gardens by Type",
+       x = "Amenity Type",
+       y = "Total Number of Gardens") +
+  scale_fill_brewer(palette = "Pastel1") +
+  theme(panel.background = element_rect(fill = "transparent")) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+plot1
+```
+DATA VIZ 2
+Amenity Type by borough, facet histogram
+```{r}
+
+plot2 = amenity_count_borough %>%
+  mutate(Amenity = recode(Amenity,
+                          "farmers_market" = "Farmer's Market",
+                          "food" = "Food",
+                          "murals" = "Murals",
+                          "open_lawn_or_communal_area" = "Open Lawn/Communal Area",
+                          "pond" = "Pond")) %>% 
+  ggplot(aes(x = Amenity, y = num_amenities, fill = borough)) +
+  geom_col(position = "dodge") +
+  labs(x = "Number of Amenities", y = "Type of Amenity") + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_fill_brewer(palette = "Pastel2") +
+  theme(panel.background = element_rect(fill = "transparent"))
+
+
+plot2
+```
+
+DATA VIZ 3
+Income Distribution Dot Plot
+
+```{r}
+#importing and tidying income dataset
+
+income = read_csv("P8105 Data Science I/finalproject/censusincome2024.csv") %>% janitor::clean_names()
+
+income_borough = income[2, ] %>% 
+  select(bronx_county_new_york_median_income_dollars_estimate,
+         	bronx_county_new_york_median_income_dollars_margin_of_error,
+         kings_county_new_york_median_income_dollars_estimate,
+         kings_county_new_york_median_income_dollars_margin_of_error,
+         new_york_county_new_york_median_income_dollars_estimate,
+         new_york_county_new_york_median_income_dollars_margin_of_error,
+         queens_county_new_york_median_income_dollars_estimate,
+         queens_county_new_york_median_income_dollars_margin_of_error,
+         richmond_county_new_york_median_income_dollars_estimate,
+         richmond_county_new_york_median_income_dollars_margin_of_error) %>% 
+  mutate_all(as.character) %>% 
+  pivot_longer(cols = everything(), names_to = "column_name", values_to = "value") %>% 
+  mutate(
+    borough = str_extract(column_name, "^[a-z_]+(?=_county)"),
+    metric = ifelse(str_detect(column_name, "estimate"), "median_income", "margin_of_error")
+  ) %>%
+  select(-column_name) %>% 
+  pivot_wider(
+    names_from = metric,
+    values_from = value
+  ) %>% 
+  mutate(borough = recode(borough, bronx = 'Bronx', kings = 'Brooklyn', new_york =  'Manhattan', queens = 'Queens', richmond = 'Staten Island' ))
+
+#converting to numeric
+income_borough <- income_borough %>%
+  mutate(median_income = as.numeric(gsub(",", "", median_income))) %>% 
+  mutate(margin_of_error = as.numeric(gsub("[±,]", "", margin_of_error)))
+
+#add columns for MOE
+income_borough = income_borough %>% mutate(
+  lower_margin = (median_income-margin_of_error),
+  upper_margin = (median_income+margin_of_error)
+)
+
+
+#income dsitribution dot plot with MoE
+plot3 = income_borough %>% 
+  ggplot(aes(x= borough, y = median_income)) +
+  geom_point() +
+  geom_errorbar(aes(ymax = upper_margin, ymin = lower_margin, width = 0.1)) +
+  theme_classic()
+
+plot3
+```
+
+
+
+Poisson
+```{r}
+#POISSON ANALYSIS
+#isolating total amenities per borough
+total_borough_amenity = select(amenity_count_borough, borough, total_amenities)
+total_borough_amenity = total_borough_amenity[!duplicated(total_borough_amenity), ]
+
+#creating new data frame for regression
+poisson_df = left_join(income_borough, total_borough_amenity, by="borough") %>% select(borough, median_income, total_amenities)
+
+# Fit the Poisson regression model
+poisson_model <- glm(total_amenities ~ median_income, 
+                     family = poisson(link = "log"), 
+                     data = poisson_df)
+
+table2 = summary(poisson_model)
+
+
+```
