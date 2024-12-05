@@ -10,8 +10,9 @@
 
 
 
+<meta name="date" content="2024-11-27" />
 
-<title>Eco-Friendly Practices</title>
+<title>Garden Amenities</title>
 
 <script src="site_libs/header-attrs-2.28/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
@@ -29,9 +30,6 @@
        h6 {font-size: 12px;}
        code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
        pre:not([class]) { background-color: white }</style>
-<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
-<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
-<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
@@ -224,69 +222,6 @@ $(document).ready(function () {
 
 
 
-<style type="text/css">
-
-#TOC {
-  margin: 25px 0px 20px 0px;
-}
-@media (max-width: 768px) {
-#TOC {
-  position: relative;
-  width: 100%;
-}
-}
-
-@media print {
-.toc-content {
-  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
-  float: right;
-}
-}
-
-.toc-content {
-  padding-left: 30px;
-  padding-right: 40px;
-}
-
-div.main-container {
-  max-width: 1200px;
-}
-
-div.tocify {
-  width: 20%;
-  max-width: 260px;
-  max-height: 85%;
-}
-
-@media (min-width: 768px) and (max-width: 991px) {
-  div.tocify {
-    width: 25%;
-  }
-}
-
-@media (max-width: 767px) {
-  div.tocify {
-    width: 100%;
-    max-width: none;
-  }
-}
-
-.tocify ul, .tocify li {
-  line-height: 20px;
-}
-
-.tocify-subheader .tocify-item {
-  font-size: 0.90em;
-}
-
-.tocify .list-group-item {
-  border-radius: 0px;
-}
-
-
-</style>
-
-
 
 </head>
 
@@ -294,16 +229,6 @@ div.tocify {
 
 
 <div class="container-fluid main-container">
-
-
-<!-- setup 3col/9col grid for toc_float and main content  -->
-<div class="row">
-<div class="col-xs-12 col-sm-4 col-md-3">
-<div id="TOC" class="tocify">
-</div>
-</div>
-
-<div class="toc-content col-xs-12 col-sm-8 col-md-9">
 
 
 
@@ -354,15 +279,13 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">Eco-Friendly Practices</h1>
+<h1 class="title toc-ignore">Garden Amenities</h1>
+<h4 class="date">2024-11-27</h4>
 
 </div>
 
 
-<pre class="r"><code>gardeninfo =  
-  GET(&quot;http://data.cityofnewyork.us/resource/p78i-pat6.csv&quot;) %&gt;% 
-  content(&quot;parsed&quot;) %&gt;% 
-  janitor::clean_names()</code></pre>
+<pre class="r"><code>gardeninfo = read_csv(&quot;./GreenThumb_Garden_Info_20241127.csv&quot;) %&gt;% janitor::clean_names()</code></pre>
 <pre><code>## Rows: 629 Columns: 27
 ## ── Column specification ────────────────────────────────────────────────────────────
 ## Delimiter: &quot;,&quot;
@@ -371,16 +294,13 @@ div.tocify {
 ## 
 ## ℹ Use `spec()` to retrieve the full column specification for this data.
 ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-<pre class="r"><code>gardenamenities = 
-  GET(&quot;http://data.cityofnewyork.us/resource/xqbk-beh5.csv&quot;) %&gt;%
-  content(&quot;parsed&quot;) %&gt;% 
-  janitor::clean_names()</code></pre>
+<pre class="r"><code>gardenamenities = read_csv(&quot;./GreenThumb_Site_Visits_20241127.csv&quot;) %&gt;% janitor::clean_names()</code></pre>
 <pre><code>## Rows: 357 Columns: 35
 ## ── Column specification ────────────────────────────────────────────────────────────
 ## Delimiter: &quot;,&quot;
-## chr  (1): parksid
-## dbl  (5): inspectionid, totalfencelength, totalsidewalkarea, totalsidewalkle...
-## lgl (29): nexttoanothergarden, onsiteservice, hydrantw_in15ft, hydrantongard...
+## chr  (1): ParksID
+## dbl  (5): InspectionID, TotalFenceLength, TotalSidewalkArea, TotalSidewalkLe...
+## lgl (29): NextToAnotherGarden, OnSiteService, HydrantW_in15ft, HydrantOnGard...
 ## 
 ## ℹ Use `spec()` to retrieve the full column specification for this data.
 ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
@@ -391,11 +311,7 @@ div.tocify {
                           &quot;M&quot; = &quot;Manhattan&quot;,
                           &quot;Q&quot; = &quot;Queens&quot;,
                           &quot;R&quot; = &quot;Staten Island&quot;))
-amenities_tidy = gardenamenities %&gt;% 
-rename(
-  open_lawn_or_communal_area = openlawnorcommunalarea,
-  farmers_market = farmersmarket,
-  inspection_id = inspectionid) %&gt;% select(parksid, open_lawn_or_communal_area, murals, farmers_market, pond, food, inspection_id)
+amenities_tidy = gardenamenities %&gt;% select(parks_id, open_lawn_or_communal_area, murals, farmers_market, pond, food, inspection_id) %&gt;% rename(parksid = parks_id)
 
 #merging data
 garden_merged = full_join(amenities_tidy, info_tidy, by= &quot;parksid&quot;) </code></pre>
@@ -535,7 +451,7 @@ food</p>
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 plot1</code></pre>
-<p><img src="gardenamenitiestab_files/figure-html/unnamed-chunk-2-1.png" width="672" />
+<p><img src="P8105_FinalProj_GardenAmenities_files/figure-html/unnamed-chunk-2-1.png" width="672" />
 DATA VIZ 2 Amenity Type by borough, facet histogram</p>
 <pre class="r"><code>plot2 = amenity_count_borough %&gt;%
   mutate(Amenity = recode(Amenity,
@@ -553,7 +469,7 @@ DATA VIZ 2 Amenity Type by borough, facet histogram</p>
 
 
 plot2</code></pre>
-<p><img src="gardenamenitiestab_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<p><img src="P8105_FinalProj_GardenAmenities_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
 <p>DATA VIZ 3 Income Distribution Dot Plot</p>
 <pre class="r"><code>#importing and tidying income dataset
 
@@ -610,7 +526,7 @@ plot3 = income_borough %&gt;%
   theme_classic()
 
 plot3</code></pre>
-<p><img src="gardenamenitiestab_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<p><img src="P8105_FinalProj_GardenAmenities_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
 <p>Poisson</p>
 <pre class="r"><code>#POISSON ANALYSIS
 #isolating total amenities per borough
@@ -625,36 +541,10 @@ poisson_model &lt;- glm(total_amenities ~ median_income,
                      family = poisson(link = &quot;log&quot;), 
                      data = poisson_df)
 
-table2 = summary(poisson_model)
-table2</code></pre>
-<pre><code>## 
-## Call:
-## glm(formula = total_amenities ~ median_income, family = poisson(link = &quot;log&quot;), 
-##     data = poisson_df)
-## 
-## Deviance Residuals: 
-##       1        2        3        4        5  
-##  -3.150   13.644    4.780   -9.195  -13.753  
-## 
-## Coefficients:
-##                   Estimate   Std. Error z value             Pr(&gt;|z|)    
-## (Intercept)    5.650887757  0.150903723  37.447 &lt; 0.0000000000000002 ***
-## median_income -0.000009172  0.000001897  -4.833           0.00000134 ***
-## ---
-## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
-## 
-## (Dispersion parameter for poisson family taken to be 1)
-## 
-##     Null deviance: 515.22  on 4  degrees of freedom
-## Residual deviance: 492.62  on 3  degrees of freedom
-## AIC: 527.28
-## 
-## Number of Fisher Scoring iterations: 5</code></pre>
+table2 = summary(poisson_model)</code></pre>
 
 
 
-</div>
-</div>
 
 </div>
 
@@ -687,35 +577,6 @@ $(document).ready(function () {
 
 <!-- code folding -->
 
-<script>
-$(document).ready(function ()  {
-
-    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
-    $('.unlisted.unnumbered').addClass('toc-ignore')
-
-    // move toc-ignore selectors from section div to header
-    $('div.section.toc-ignore')
-        .removeClass('toc-ignore')
-        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
-
-    // establish options
-    var options = {
-      selectors: "h1,h2,h3",
-      theme: "bootstrap3",
-      context: '.toc-content',
-      hashGenerator: function (text) {
-        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
-      },
-      ignoreSelector: ".toc-ignore",
-      scrollTo: 0
-    };
-    options.showAndHide = true;
-    options.smoothScroll = true;
-
-    // tocify
-    var toc = $("#TOC").tocify(options).data("toc-tocify");
-});
-</script>
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
 <script>

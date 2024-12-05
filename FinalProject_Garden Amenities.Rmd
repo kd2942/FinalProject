@@ -19,8 +19,8 @@ options(scipen = 999)  # Turn off scientific notation globally
 
 ```{r}
 
-gardeninfo = read_csv("P8105 Data Science I/finalproject/GreenThumb_Garden_Info_20241127.csv") %>% janitor::clean_names()
-gardenamenities = read_csv("P8105 Data Science I/finalproject/GreenThumb_Site_Visits_20241127.csv") %>% janitor::clean_names()
+gardeninfo = read_csv("./GreenThumb_Garden_Info_20241127.csv") %>% janitor::clean_names()
+gardenamenities = read_csv("./GreenThumb_Site_Visits_20241127.csv") %>% janitor::clean_names()
 
 info_tidy = gardeninfo %>% select(borough, gardenname, parksid, zipcode, congressionaldist) %>% 
   mutate(borough = recode(borough,
@@ -119,7 +119,7 @@ Income Distribution Dot Plot
 ```{r}
 #importing and tidying income dataset
 
-income = read_csv("P8105 Data Science I/finalproject/censusincome2024.csv") %>% janitor::clean_names()
+income = read_csv("./censusincome2024.csv") %>% janitor::clean_names()
 
 income_borough = income[2, ] %>% 
   select(bronx_county_new_york_median_income_dollars_estimate,
