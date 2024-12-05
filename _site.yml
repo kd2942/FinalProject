@@ -5,7 +5,11 @@ navbar:
   right:
     - text: "About"
     - text: "Flora and Fauna"
-    - href: florafauna.html
+      href: florafaunatab.html
+    - text: "Eco-Friendly Practices"
+      href: ecofriendlytab.html
+    - text: "Garden Ameneties"
+      href: gardenamenitiestab.html
     - icon: fa-envelope fa-lg
       href: mailto:<kd2942@cumc.columbia.edu>
     - icon: fa-github fa-lg
