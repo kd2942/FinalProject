@@ -340,7 +340,7 @@ div.tocify {
   </a>
 </li>
 <li>
-  <a href="http://github.com/&lt;nycgardens&gt;/">
+  <a href="http://github.com/&lt;nycgardens.github.io&gt;/">
     <span class="fa fa-github fa-lg"></span>
      
   </a>
@@ -364,7 +364,7 @@ div.tocify {
   content(&quot;parsed&quot;) %&gt;% 
   janitor::clean_names()</code></pre>
 <pre><code>## Rows: 629 Columns: 27
-## ── Column specification ────────────────────────────────────────────────────────
+## ── Column specification ────────────────────────────────────────────────────────────
 ## Delimiter: &quot;,&quot;
 ## chr (16): address, borough, gardenname, juris, multipolygon, openhrsf, openh...
 ## dbl (11): assemblydist, communityboard, congressionaldist, coundist, policep...
@@ -376,7 +376,7 @@ div.tocify {
   content(&quot;parsed&quot;) %&gt;% 
   janitor::clean_names()</code></pre>
 <pre><code>## Rows: 357 Columns: 35
-## ── Column specification ────────────────────────────────────────────────────────
+## ── Column specification ────────────────────────────────────────────────────────────
 ## Delimiter: &quot;,&quot;
 ## chr  (1): parksid
 ## dbl  (5): inspectionid, totalfencelength, totalsidewalkarea, totalsidewalkle...
@@ -402,8 +402,8 @@ garden_merged = full_join(amenities_tidy, info_tidy, by= &quot;parksid&quot;) </
 <pre><code>## Warning in full_join(amenities_tidy, info_tidy, by = &quot;parksid&quot;): Detected an unexpected many-to-many relationship between `x` and `y`.
 ## ℹ Row 127 of `x` matches multiple rows in `y`.
 ## ℹ Row 169 of `y` matches multiple rows in `x`.
-## ℹ If a many-to-many relationship is expected, set `relationship =
-##   &quot;many-to-many&quot;` to silence this warning.</code></pre>
+## ℹ If a many-to-many relationship is expected, set `relationship = &quot;many-to-many&quot;`
+##   to silence this warning.</code></pre>
 <pre class="r"><code>#removing duplicates
 info_tidy %&gt;% select(parksid) %&gt;% duplicated()</code></pre>
 <pre><code>##   [1] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
@@ -559,7 +559,7 @@ plot2</code></pre>
 
 income = read_csv(&quot;./censusincome2024.csv&quot;) %&gt;% janitor::clean_names()</code></pre>
 <pre><code>## Rows: 47 Columns: 37
-## ── Column specification ────────────────────────────────────────────────────────
+## ── Column specification ────────────────────────────────────────────────────────────
 ## Delimiter: &quot;,&quot;
 ## chr (34): Label (Grouping), Bronx County, New York!!Number!!Estimate, Bronx ...
 ## num  (3): Kings County, New York!!Median income (dollars)!!Estimate, Queens ...
