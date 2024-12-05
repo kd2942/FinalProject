@@ -18,8 +18,6 @@ options(scipen = 999)  # Turn off scientific notation globally
 ```
 
 
-
-
 ```{r}
 
 gardeninfo =  
@@ -77,9 +75,6 @@ amenity_count_borough = garden_merged %>%
 table1 = amenity_count_borough %>% select(borough, total_amenities) %>% unique() %>% 
   knitr::kable(col.names = c("Borough", "Total Amenities"),
                label = "Total Number of Garden Amenities by Borough")
-  
-
-
 ```
 
 

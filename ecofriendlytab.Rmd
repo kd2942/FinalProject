@@ -7,8 +7,8 @@ output:
     theme: cerulean
 ---
 
-#loading libraries
 ```{r setup, include=FALSE}
+#loading libraries
 library(readr)
 library(tidyverse)
 library(dplyr)
@@ -19,9 +19,8 @@ library(rvest)
 library(httr)
 ```
 
-
+```{r, include=FALSE}
 #loading datasets
-```{r}
 garden_info = 
   GET("http://data.cityofnewyork.us/resource/p78i-pat6.csv") |> 
   content("parsed") |>
@@ -44,9 +43,9 @@ site_visits =
   content("parsed") |>
   janitor::clean_names()
 ```
-**Eco-Friendly Practices Tab **
+
+```{r, include = FALSE}
 #merging and cleaning data for analysis of eco-friendly practices
-```{r}
 site_visits_eco_friendly = site_visits |>
   select(parksid, inspectionid, rainharvesting, composting, aquaponics, solarpanels) |>
  mutate_at(c('rainharvesting', 'composting', 'aquaponics', 'solarpanels'), as.numeric) 
@@ -65,9 +64,7 @@ eco_friendly_df = eco_friendly_df |>
   )
 ```
 
-
-#Data Visualization
-```{r}
+```{r Data Visualization}
 #Histogram: Overall Distribution of Eco-Friendly Practices Across Boroughs
 #reshaping data to plot 
 eco_friendly_tidy <- eco_friendly_df |>
